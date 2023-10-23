@@ -3,6 +3,7 @@ from torch import nn
 from torchvision import models
 
 def get_model(model_name, num_classes=10, pretrained=False):
+    # use mean and std for in1k models: mean=[0.485, 0.456, 0.406] and std=[0.229, 0.224, 0.225]
     if model_name == "resnet18":
         model = models.resnet18(pretrained="IMAGENET1K_V1" if pretrained else None)
         model.fc = nn.Linear(in_features=512, out_features=num_classes, bias=True)
