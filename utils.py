@@ -15,9 +15,15 @@ def save_images(images, adv_images, save_path):
 
     for i, adv_image in enumerate(adv_images):
 
+        if not os.path.exists(os.path.join(save_path, "original")):
+            os.makedirs(os.path.join(save_path, "original"))
+        
+        if not os.path.exists(os.path.join(save_path, "adv")):
+            os.makedirs(os.path.join(save_path, "adv"))
+
         image_path = os.path.join(save_path, "original",f"{i}.png")
         adv_path = os.path.join(save_path, "adv",f"{i}.png")
-
+         
         save_image(denormalize(images[i]), image_path)
         save_image(denormalize(adv_image), adv_path)
         
