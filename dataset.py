@@ -12,8 +12,6 @@ def get_dataloader():
                     transforms.ToTensor(),
                     transforms.Normalize(mean= [0.485, 0.456, 0.406], std= [0.229, 0.224, 0.225]),
                     ])
-
-
    
     dataset = torchvision.datasets.ImageFolder("/workspace/datasets/ImageNet/val", transform=data_transforms)
     dataloader = DataLoader(dataset, batch_size=8, shuffle=False, num_workers=1)
