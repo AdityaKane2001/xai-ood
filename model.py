@@ -24,6 +24,6 @@ def get_model(model_name, num_classes=1000, pretrained=False):
         return model
     else:
         raise ValueError(
-            f"Model not recognized, received `{model_name=}`."
+            f"Model not recognized, received `{model_name}`."
             f"Expected one of ('resnet18', )"
         )

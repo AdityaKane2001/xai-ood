@@ -5,6 +5,40 @@ from torchvision.utils import save_image
 import json
 import cv2
 import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.fftpack import fft2, fftshift
+from scipy.stats import multivariate_normal
+
+def get_spread(attention):
+    x, y = np.meshgrid(np.arange(14), np.arange(14))
+    # Compute the weighted mean location
+    weighted_mean_x = np.sum(x * attention) / np.sum(attention)
+    weighted_mean_y = np.sum(y * attention) / np.sum(attention)
+    distances = np.sqrt((x - weighted_mean_x)**2 + (y - weighted_mean_y)**2)
+    weighted_distances = distances*attention
+    # exponential_result = np.exp(attention)
+    # weighted_distances = distances**exponential_result
+    # Sum up the weighted distances
+    sum_weighted_distances = np.sum(weighted_distances)
+    return sum_weighted_distances
+
+def calculate_variance(attention):
+    return np.var(attention,axis=1)
+
+def perform_fft(attention):
+    fft_result = fft2(attention)
+    fft_shifted = fftshift(fft_result)
+    return np.abs(fft_shifted)
+
+def plot_histogram(attention):
+    plt.clf()
+    plt.hist(attention.ravel(), bins=50, color='blue', alpha=0.7)
+    plt.title('Histogram of Pixel Values')
+    plt.savefig('out_hist.png')
+
+def calculate_percentiles(attention, percentiles):
+    return {p: np.percentile(attention, p) for p in percentiles}
 
 def denormalize(img):
     mean = [0.485, 0.456, 0.406]

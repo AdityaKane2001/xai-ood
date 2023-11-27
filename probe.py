@@ -13,6 +13,8 @@ class Prober:
     def __init__(self, model_alias, discard_ratio=0.75, head_fusion="mean", pgd_eps=8/255, pgd_alpha=2/255, pgd_steps=4) -> None:
         self.model_alias = model_alias
         self.model = get_model(model_alias)
+        self.device = torch.device("cuda")
+        self.model.to(self.device)
         self.transforms = transforms.Compose([
             transforms.Resize((224,224)),
             transforms.ToTensor(),
@@ -26,16 +28,15 @@ class Prober:
         # if torch.cuda.is_available():
         #     self.device = torch.device("cuda")
         # else:
-        self.device = torch.device("cpu")
-            
-        self.model.to(self.device)
         # self.model.eval()
         
     def attack_images(self, imgs, lbls):
         return self.atk(imgs, lbls)
     
-    def compute_explanations(self, imgs, lbls, category=0, attack=False):
-        imgs = self.transforms(imgs)
+    def compute_explanations(self, imgs, lbls, attack=False):
+        # imgs = self.transforms(imgs)
+        self.grad_rollout = VITAttentionGradRollout(self.model, discard_ratio=self.discard_ratio)
+        # self.attn_rollout = VITAttentionRollout(self.model, discard_ratio=self.discard_ratio, head_fusion=self.head_fusion)
         
         imgs = imgs.to(self.device)
         lbls = lbls.to(self.device)
@@ -45,11 +46,17 @@ class Prober:
         
         if attack:
             imgs = self.attack_images(imgs, lbls)
+            output = self.model(imgs)
+            category = int(torch.argmax(output))
+        else:
+            category = int(lbls)
+        print(category,'category')
         
         
         # with torch.no_grad():
         grad_exp = self.grad_rollout(imgs, category_index=category)
-        attn_exp = self.attn_rollout(imgs)    
+        # attn_exp = self.attn_rollout(imgs)
+        attn_exp = None    
     
         return grad_exp, attn_exp
         
