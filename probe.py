@@ -13,7 +13,7 @@ class Prober:
     def __init__(self, model_alias, discard_ratio=0.75, head_fusion="mean", pgd_eps=8/255, pgd_alpha=2/255, pgd_steps=4) -> None:
         self.model_alias = model_alias
         self.model = get_model(model_alias)
-        self.device = torch.device("cuda")
+        self.device = torch.device("cpu")
         self.model.to(self.device)
         self.transforms = transforms.Compose([
             transforms.Resize((224,224)),

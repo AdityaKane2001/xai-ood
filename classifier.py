@@ -11,13 +11,13 @@ warnings.filterwarnings("ignore", category=UserWarning)
 probe = Prober("deit")
 
 ## set the flags for what to show
-attack_flag = False
+attack_flag = True
 show_analysis = False # This will show the FFT and histogram, for scores use test_score.py
 show_masks = True
 
 ## Add folder path below
-# data_folder = "/satassdscratch/amete7/xai-ood/imagenet_val"
-data_folder = "/satassdscratch/amete7/xai-ood/imagenet-o"
+data_folder = "/satassdscratch/amete7/xai-ood/imagenet_val"
+# data_folder = "/satassdscratch/amete7/xai-ood/imagenet-a"
 
 ## Since val labels are in one txt for me
 labels_file = "/satassdscratch/amete7/xai-ood/imagenet_val_labels.txt"
@@ -27,12 +27,10 @@ transform = transforms.Compose([
                 transforms.ToTensor(),
                 transforms.Normalize(mean= [0.485, 0.456, 0.406], std= [0.229, 0.224, 0.225]),
                 ])
-# custom_dataset = ImageNetValDataset(data_folder, labels_file, transform) # For val
-custom_dataset = ImageNetADataset(data_folder, transform) # For imagenet-a
+custom_dataset = ImageNetValDataset(data_folder, labels_file, transform) # For val
+# custom_dataset = ImageNetADataset(data_folder, transform) # For imagenet-a
 
 sample_img, sample_label, image_pil = custom_dataset[5]
-# sample_img = sample_img.cuda()
-sample_img = sample_img.to_tensor()
 output = probe.model(sample_img.unsqueeze(0))
 label = torch.argmax(output)
 print(int(label),'label')
