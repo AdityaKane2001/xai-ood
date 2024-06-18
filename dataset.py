@@ -44,6 +44,7 @@ class ImageNetValDataset(Dataset):
 class ImageNetADataset(ImageFolder):
     def __getitem__(self, index):
         path, target = self.samples[index]
+        target = path.split("/")[-2]
         original_image = Image.open(path).convert('RGB')
 
         if self.transform is not None:
@@ -52,7 +53,8 @@ class ImageNetADataset(ImageFolder):
             transformed_image = original_image
 
         if self.target_transform is not None:
-            target = self.target_transform(target)
+            # print(target)
+            target = self.target_transform(target)["idx"]
 
         return transformed_image, target, original_image
 

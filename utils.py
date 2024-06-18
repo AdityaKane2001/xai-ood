@@ -10,13 +10,32 @@ import matplotlib.pyplot as plt
 from scipy.fftpack import fft2, fftshift
 from scipy.stats import multivariate_normal
 
+
+
+
 def get_spread(attention):
-    x, y = np.meshgrid(np.arange(14), np.arange(14))
+    
+    attention = torch.nn.AdaptiveAvgPool2d((12, 12))(torch.tensor(attention).unsqueeze(0)).squeeze().numpy()
+    
+    x, y = np.meshgrid(np.arange(len(attention)), np.arange(len(attention)))
+    x = x / len(attention)
+    y = y / len(attention)
+    # mask = (attention > 0.1).astype(float)
+    # print(mask)
+    # print(np.sum(mask))
+    
+    # attention = attention * mask
     # Compute the weighted mean location
     weighted_mean_x = np.sum(x * attention) / np.sum(attention)
     weighted_mean_y = np.sum(y * attention) / np.sum(attention)
     distances = np.sqrt((x - weighted_mean_x)**2 + (y - weighted_mean_y)**2)
-    weighted_distances = distances*attention
+    
+    # print(weighted_mean_x)
+    # print(weighted_mean_y)
+    
+    # mask = (distances > 0.2).astype(float)
+    # attention = attention * mask
+    weighted_distances = attention*np.exp(distances)
     # exponential_result = np.exp(attention)
     # weighted_distances = distances**exponential_result
     # Sum up the weighted distances
@@ -61,6 +80,7 @@ def save_images(images, adv_images, save_path):
         image_path = os.path.join(save_path, "original",f"{i}.png")
         adv_path = os.path.join(save_path, "adv",f"{i}.png")
          
+         
         save_image(denormalize(images[i]), image_path)
         save_image(denormalize(adv_image), adv_path)
 
@@ -72,7 +92,21 @@ def show_mask_on_image(img, mask):
     cam = cam / np.max(cam)
     return np.uint8(255 * cam)
 
-def plot_mask_and_im(img, mask, savepath=None):
+# def plot_mask_and_im(img, mask, savepath=None):
+#     np_img = np.array(img)[:, :, ::-1]
+#     mask = cv2.resize(mask, (np_img.shape[1], np_img.shape[0]))
+#     mask = show_mask_on_image(np_img, mask)
+
+#     fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(16, 16))
+
+#     ax1.set_title('Original')
+#     ax2.set_title('Attention Map')
+#     _ = ax1.imshow(img)
+#     _ = ax2.imshow(mask)
+#     if savepath is not None:
+#         plt.savefig(savepath)
+        
+def plot_mask_and_im(img, mask, score, savepath=None):
     np_img = np.array(img)[:, :, ::-1]
     mask = cv2.resize(mask, (np_img.shape[1], np_img.shape[0]))
     mask = show_mask_on_image(np_img, mask)
@@ -81,6 +115,7 @@ def plot_mask_and_im(img, mask, savepath=None):
 
     ax1.set_title('Original')
     ax2.set_title('Attention Map')
+    fig.suptitle(f"Score: {score}")
     _ = ax1.imshow(img)
     _ = ax2.imshow(mask)
     if savepath is not None:

@@ -5,8 +5,12 @@ __pycache__/
 
 *.tar
 imagenet-a/
-imagenet_val/
+imagenet-val/
 imagenet-o/
+imagenet-a/
+demo_images/
+demo_images_new/
+scratch_ims/
 
 # C extensions
 *.so
